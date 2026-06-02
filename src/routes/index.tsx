@@ -360,6 +360,15 @@ function Index() {
                 ))}
               </div>
             </div>
+
+            <a
+              href={cvAsset.url}
+              download="Jessica_Galhardi_CV.pdf"
+              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5"
+            >
+              <Download className="h-4 w-4" />
+              {CV_LABEL[lang]}
+            </a>
           </div>
         </div>
       </section>
