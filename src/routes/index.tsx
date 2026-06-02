@@ -12,6 +12,14 @@ import cineAsset from "@/assets/jsons/cine.png.asset.json";
 import gymAsset from "@/assets/jsons/gym.png.asset.json";
 import pianoAsset from "@/assets/jsons/piano.png.asset.json";
 import planeAsset from "@/assets/jsons/plane.png.asset.json";
+import cvAsset from "@/assets/cv.pdf.asset.json";
+
+const CV_LABEL: Record<"pt" | "en" | "it" | "es", string> = {
+  pt: "Baixar CV",
+  en: "Download CV",
+  it: "Scarica CV",
+  es: "Descargar CV",
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
