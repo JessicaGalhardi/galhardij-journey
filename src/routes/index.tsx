@@ -415,7 +415,7 @@ function Index() {
             </p>
             <h2 className="mt-4 font-display text-4xl">{t.journeyTitle.heading}</h2>
           </div>
-          <MountainTimeline items={t.journey} />
+          <MapJourney items={t.journey} />
 
           <div className="mt-12 flex justify-center">
             <a
