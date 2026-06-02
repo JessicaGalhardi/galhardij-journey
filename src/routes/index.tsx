@@ -405,6 +405,17 @@ function Index() {
             <h2 className="mt-4 font-display text-4xl">{t.journeyTitle.heading}</h2>
           </div>
           <MountainTimeline items={t.journey} />
+
+          <div className="mt-12 flex justify-center">
+            <a
+              href={cvAsset.url}
+              download="Jessica_Galhardi_CV.pdf"
+              className="inline-flex items-center gap-2 rounded-2xl border border-primary bg-background px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              <Download className="h-4 w-4" />
+              {CV_LABEL[lang]}
+            </a>
+          </div>
         </section>
 
         <div className="h-px w-full bg-border" />
