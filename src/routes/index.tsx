@@ -13,6 +13,8 @@ import gymAsset from "@/assets/jsons/gym.png.asset.json";
 import pianoAsset from "@/assets/jsons/piano.png.asset.json";
 import planeAsset from "@/assets/jsons/plane.png.asset.json";
 import cvAsset from "@/assets/cv.pdf.asset.json";
+import journeyMapAsset from "@/assets/jsons/journey-map.jpg.asset.json";
+import journeyPlaneAsset from "@/assets/jsons/journey-plane.png.asset.json";
 
 const CV_LABEL: Record<"pt" | "en" | "it" | "es", string> = {
   pt: "Baixar CV",
@@ -224,78 +226,87 @@ function PhotoCarousel({ lang }: { lang: Lang }) {
   );
 }
 
-function MountainTimeline({ items }: { items: { year: string; role: string; note: string }[] }) {
+function MapJourney({ items }: { items: { year: string; role: string; note: string }[] }) {
   const W = 1000;
-  const H = 340
-  const peakYs = [110, 70, 130, 60, 100];
-  const peaks = items.map((it, i) => {
-    const x = ((i + 1) * W) / (items.length + 1);
-    const y = peakYs[i % peakYs.length];
-    return { ...it, x, y };
-  });
+  const H = 466;
+  // Markers placed over the Ghibli map (Brazil on left, Italy on right)
+  const positions: { x: number; y: number; side: "br" | "it" }[] = [
+    { x: 200, y: 320, side: "br" }, // 2009-2018 Brazil
+    { x: 720, y: 180, side: "it" }, // 2019-2022 Italy
+    { x: 780, y: 240, side: "it" }, // 2023 Italy
+    { x: 830, y: 200, side: "it" }, // 2024 Italy
+    { x: 260, y: 380, side: "br" }, // Today Brazil
+  ];
 
-  const baseline = 280;
-  const ridgePoints: [number, number][] = [[0, baseline]];
-  peaks.forEach((p, i) => {
-    ridgePoints.push([p.x, p.y]);
-    if (i < peaks.length - 1) {
-      const nextX = peaks[i + 1].x;
-      const valleyX = (p.x + nextX) / 2;
-      ridgePoints.push([valleyX, 200 + (i % 2) * 20]);
-    }
-  });
-  ridgePoints.push([W, baseline]);
+  const peaks = items.map((it, i) => ({ ...it, ...positions[i % positions.length] }));
 
-  const ridgeD = ridgePoints
-    .map(([x, y], i) => (i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`))
+  // Flight path: smooth curve visiting every marker in order
+  const pathD = peaks
+    .map((p, i) => {
+      if (i === 0) return `M ${p.x} ${p.y}`;
+      const prev = peaks[i - 1];
+      const mx = (prev.x + p.x) / 2;
+      const cy = Math.min(prev.y, p.y) - 80; // arc upward between points
+      return `Q ${mx} ${cy} ${p.x} ${p.y}`;
+    })
     .join(" ");
-  const fillD = `${ridgeD} L ${W} ${H} L 0 ${H} Z`;
 
   return (
     <div className="overflow-x-auto pb-4">
-      <div className="min-w-[720px]">
-        <svg viewBox={`0 0 ${W} ${H + 90}`} className="w-full" role="img" aria-label="Career timeline mountains">
-          <defs>
-            <linearGradient id="mountFill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.04" />
-            </linearGradient>
-            <linearGradient id="ridgeStroke" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.95" />
-            </linearGradient>
-          </defs>
+      <div className="relative min-w-[720px]">
+        <svg viewBox={`0 0 ${W} ${H + 90}`} className="w-full" role="img" aria-label="Journey map Brazil to Italy">
+          {/* Ghibli style map background */}
+          <image href={journeyMapAsset.url} x="0" y="0" width={W} height={H} preserveAspectRatio="xMidYMid slice" />
 
-          <path d={fillD} fill="url(#mountFill)" />
-          <path id="ridgePath" d={ridgeD} fill="none" stroke="url(#ridgeStroke)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+          {/* Dashed flight trail */}
+          <path
+            d={pathD}
+            fill="none"
+            stroke="var(--primary)"
+            strokeWidth="2.5"
+            strokeDasharray="6 6"
+            strokeLinecap="round"
+            opacity="0.7"
+            id="flightPath"
+          />
 
+          {/* Markers */}
           {peaks.map((p, i) => (
             <g key={i}>
-              <line x1={p.x} y1={p.y} x2={p.x} y2={p.y - 24} stroke="var(--primary)" strokeWidth="1.5" />
-              <polygon points={`${p.x},${p.y - 24} ${p.x + 14},${p.y - 20} ${p.x},${p.y - 16}`} fill="var(--primary)" />
-              <circle cx={p.x} cy={p.y} r="5" fill="var(--background)" stroke="var(--primary)" strokeWidth="2" />
-              <text x={p.x} y={p.y - 34} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--foreground)">{p.year}</text>
-              <text x={p.x} y={H + 30} textAnchor="middle" fontSize="14" fontFamily="Fraunces, serif" fill="var(--foreground)">
+              <circle cx={p.x} cy={p.y} r="10" fill="var(--background)" stroke="var(--primary)" strokeWidth="3" />
+              <circle cx={p.x} cy={p.y} r="4" fill="var(--primary)" />
+              <text
+                x={p.x}
+                y={p.y - 22}
+                textAnchor="middle"
+                fontSize="15"
+                fontWeight="700"
+                fill="var(--foreground)"
+                style={{ paintOrder: "stroke", stroke: "var(--background)", strokeWidth: 4 }}
+              >
+                {p.year}
+              </text>
+              <text x={p.x} y={H + 30} textAnchor="middle" fontSize="15" fontFamily="Fraunces, serif" fill="var(--foreground)">
                 {p.role.length > 28 ? p.role.slice(0, 26) + "…" : p.role}
               </text>
-              <text x={p.x} y={H + 52} textAnchor="middle" fontSize="11" fill="var(--muted-foreground)">
-                {p.note.length > 34 ? p.note.slice(0, 32) + "…" : p.note}
+              <text x={p.x} y={H + 52} textAnchor="middle" fontSize="12" fill="var(--muted-foreground)">
+                {p.note}
               </text>
             </g>
           ))}
 
-          {/* Walking girl traveling along the ridge */}
+          {/* Ghibli plane with the girl, flying along the path */}
           <g>
-            <g>
-              <circle cx="0" cy="-18" r="6" fill="#4a2a1a" />
-              <circle cx="0" cy="-16" r="4.5" fill="#f3c8a8" />
-              <polygon points="-6,-2 6,-2 4,-12 -4,-12" fill="var(--primary)" />
-              <line x1="-2.5" y1="-2" x2="-2.5" y2="4" stroke="#4a2a1a" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="2.5" y1="-2" x2="2.5" y2="4" stroke="#4a2a1a" strokeWidth="1.5" strokeLinecap="round" />
-              <animateTransform attributeName="transform" type="translate" values="0 0; 0 -1.8; 0 0" dur="0.5s" repeatCount="indefinite" />
-            </g>
-            <animateMotion dur="20s" repeatCount="indefinite" rotate="auto">
-              <mpath href="#ridgePath" />
+            <image
+              href={journeyPlaneAsset.url}
+              x="-45"
+              y="-35"
+              width="90"
+              height="70"
+              preserveAspectRatio="xMidYMid meet"
+            />
+            <animateMotion dur="18s" repeatCount="indefinite" rotate="auto">
+              <mpath href="#flightPath" />
             </animateMotion>
           </g>
         </svg>
@@ -404,7 +415,7 @@ function Index() {
             </p>
             <h2 className="mt-4 font-display text-4xl">{t.journeyTitle.heading}</h2>
           </div>
-          <MountainTimeline items={t.journey} />
+          <MapJourney items={t.journey} />
 
           <div className="mt-12 flex justify-center">
             <a
