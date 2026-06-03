@@ -44,7 +44,7 @@ const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
   { code: "es", label: "Español", flag: "🇪🇸" },
 ];
 
-type JourneyItem = { period: string; location: string; title: string; body: string; accent: "green" | "red" | "blue" | "violet"; x: number; y: number };
+type JourneyItem = { period: string; location: string; title: string; body: string; accent: "green" | "red" | "blue" | "violet" };
 type Strength = { title: string; body: string };
 
 const T: Record<Lang, {
