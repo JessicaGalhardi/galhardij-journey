@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Instagram, Linkedin, Github, Languages, ChevronLeft, ChevronRight, Download, MessageCircle, Lightbulb, Users, Star } from "lucide-react";
+import { Instagram, Linkedin, Github, Languages, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -13,7 +13,8 @@ import gymAsset from "@/assets/jsons/gym.png.asset.json";
 import pianoAsset from "@/assets/jsons/piano.png.asset.json";
 import planeAsset from "@/assets/jsons/plane.png.asset.json";
 import cvAsset from "@/assets/cv.pdf.asset.json";
-import journeyMapAsset from "@/assets/jsons/journey-map.png.asset.json";
+import journeyMapAsset from "@/assets/jsons/journey-map-v2.png.asset.json";
+import journeyPlaneAsset from "@/assets/jsons/journey-plane.png.asset.json";
 
 const CV_LABEL: Record<"pt" | "en" | "it" | "es", string> = {
   pt: "Baixar CV",
@@ -168,7 +169,13 @@ const ACCENTS: Record<JourneyItem["accent"], { dot: string; text: string; ring: 
   violet: { dot: "bg-violet-500", text: "text-violet-700", ring: "ring-violet-200" },
 };
 
-const STRENGTH_ICONS = [MessageCircle, Lightbulb, Users, Star];
+// Label positions over the map, in % of container (x = left, y = top)
+const MAP_LABELS: Array<{ x: number; y: number; align: "left" | "right" }> = [
+  { x: 4, y: 70, align: "left" },   // Brazil 2009-2017 → SP skyline area
+  { x: 72, y: 78, align: "right" }, // Italy 2019-2022 → Venice / restaurant
+  { x: 70, y: 8, align: "right" },  // Italy 2023-2024 → Dolomites / Garda
+  { x: 4, y: 8, align: "left" },    // Today → sky / clouds
+];
 
 function LanguageSwitcher({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   const current = LANGUAGES.find((l) => l.code === lang)!;
@@ -351,49 +358,93 @@ function Index() {
           </div>
 
           {/* Illustrated map */}
-          <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+          {/* Animated illustrated map with floating period labels */}
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
             <img
               src={journeyMapAsset.url}
               alt={t.journeyTitle.heading}
               className="block h-auto w-full"
               loading="lazy"
             />
-          </div>
 
-          {/* Journey cards */}
-          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Flight path + animated plane overlay */}
+            <svg
+              viewBox="0 0 1536 1024"
+              preserveAspectRatio="none"
+              className="pointer-events-none absolute inset-0 h-full w-full"
+            >
+              <defs>
+                <path
+                  id="flightPath"
+                  d="M 280 720 C 520 360, 1020 360, 1280 540"
+                  fill="none"
+                />
+              </defs>
+              <use
+                href="#flightPath"
+                stroke="rgba(255,255,255,0.85)"
+                strokeWidth="3"
+                strokeDasharray="10 12"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <g>
+                <image
+                  href={journeyPlaneAsset.url}
+                  width="120"
+                  height="120"
+                  x="-60"
+                  y="-60"
+                  style={{ filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.25))" }}
+                />
+                <animateMotion
+                  dur="14s"
+                  repeatCount="indefinite"
+                  rotate="auto"
+                  keyPoints="0;1;1"
+                  keyTimes="0;0.85;1"
+                  calcMode="linear"
+                >
+                  <mpath href="#flightPath" />
+                </animateMotion>
+              </g>
+            </svg>
+
+            {/* Floating period labels */}
             {t.journey.map((j, i) => {
+              const pos = MAP_LABELS[i];
               const a = ACCENTS[j.accent];
               return (
-                <article
+                <div
                   key={i}
-                  className={`relative rounded-2xl border border-border bg-card p-6 shadow-sm ring-1 ${a.ring} transition-transform hover:-translate-y-1`}
+                  className={`absolute hidden max-w-[26%] rounded-xl bg-white/90 p-3 shadow-lg ring-1 ${a.ring} backdrop-blur-sm md:block`}
+                  style={{
+                    left: `${pos.x}%`,
+                    top: `${pos.y}%`,
+                    textAlign: pos.align,
+                  }}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={`inline-block h-3 w-3 rounded-full ${a.dot}`} />
-                    <span className={`text-sm font-semibold ${a.text}`}>{j.period}</span>
-                    <span className="ml-auto text-xs text-muted-foreground">{j.location}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-block h-2.5 w-2.5 rounded-full ${a.dot}`} />
+                    <span className={`text-xs font-bold ${a.text}`}>{j.period}</span>
                   </div>
-                  <h3 className="mt-3 font-display text-xl leading-snug">{j.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{j.body}</p>
-                </article>
+                  <p className="mt-1 font-display text-sm leading-tight text-foreground">{j.title}</p>
+                </div>
               );
             })}
           </div>
 
-          {/* Strengths */}
-          <div className="mt-10 grid grid-cols-1 gap-4 rounded-2xl border border-border bg-secondary/40 p-6 sm:grid-cols-2 lg:grid-cols-4">
-            {t.strengths.map((s, i) => {
-              const Icon = STRENGTH_ICONS[i] ?? Star;
+          {/* Mobile-only stacked period list (map labels hide on small screens) */}
+          <div className="mt-6 grid grid-cols-1 gap-3 md:hidden">
+            {t.journey.map((j, i) => {
+              const a = ACCENTS[j.accent];
               return (
-                <div key={i} className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background text-primary ring-1 ring-border">
-                    <Icon className="h-5 w-5" />
+                <div key={i} className={`rounded-xl border border-border bg-card p-4 ring-1 ${a.ring}`}>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-block h-2.5 w-2.5 rounded-full ${a.dot}`} />
+                    <span className={`text-xs font-bold ${a.text}`}>{j.period}</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold">{s.title}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.body}</p>
-                  </div>
+                  <p className="mt-1 font-display text-base leading-tight">{j.title}</p>
                 </div>
               );
             })}
