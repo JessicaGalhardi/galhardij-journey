@@ -266,7 +266,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <section
-        className="homepage-bg relative"
+        className="homepage-bg relative w-full bg-contain bg-top bg-no-repeat h-[48vh] sm:h-[65vh] md:h-auto" 
         style={{ backgroundImage: `url(${heroAsset.url})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/5 to-background" />
