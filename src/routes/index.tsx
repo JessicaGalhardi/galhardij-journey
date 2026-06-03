@@ -169,7 +169,13 @@ const ACCENTS: Record<JourneyItem["accent"], { dot: string; text: string; ring: 
   violet: { dot: "bg-violet-500", text: "text-violet-700", ring: "ring-violet-200" },
 };
 
-const STRENGTH_ICONS = [MessageCircle, Lightbulb, Users, Star];
+// Label positions over the map, in % of container (x = left, y = top)
+const MAP_LABELS: Array<{ x: number; y: number; align: "left" | "right" }> = [
+  { x: 4, y: 70, align: "left" },   // Brazil 2009-2017 → SP skyline area
+  { x: 72, y: 78, align: "right" }, // Italy 2019-2022 → Venice / restaurant
+  { x: 70, y: 8, align: "right" },  // Italy 2023-2024 → Dolomites / Garda
+  { x: 4, y: 8, align: "left" },    // Today → sky / clouds
+];
 
 function LanguageSwitcher({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   const current = LANGUAGES.find((l) => l.code === lang)!;
