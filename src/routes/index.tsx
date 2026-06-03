@@ -13,7 +13,8 @@ import gymAsset from "@/assets/jsons/gym.png.asset.json";
 import pianoAsset from "@/assets/jsons/piano.png.asset.json";
 import planeAsset from "@/assets/jsons/plane.png.asset.json";
 import cvAsset from "@/assets/cv.pdf.asset.json";
-import journeyMapAsset from "@/assets/jsons/journey-map.png.asset.json";
+import journeyMapAsset from "@/assets/jsons/journey-map-v2.png.asset.json";
+import journeyPlaneAsset from "@/assets/jsons/journey-plane.png.asset.json";
 
 const CV_LABEL: Record<"pt" | "en" | "it" | "es", string> = {
   pt: "Baixar CV",
