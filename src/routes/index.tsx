@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Instagram, Linkedin, Github, Languages, ChevronLeft, ChevronRight, Download, MessageCircle, Lightbulb, Users, Star } from "lucide-react";
+import { Instagram, Linkedin, Github, Languages, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
