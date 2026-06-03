@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Instagram, Linkedin, Github, Languages, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { Instagram, Linkedin, Github, Languages, ChevronLeft, ChevronRight, Download, MessageCircle, Lightbulb, Users, Star } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -13,8 +13,7 @@ import gymAsset from "@/assets/jsons/gym.png.asset.json";
 import pianoAsset from "@/assets/jsons/piano.png.asset.json";
 import planeAsset from "@/assets/jsons/plane.png.asset.json";
 import cvAsset from "@/assets/cv.pdf.asset.json";
-import journeyMapAsset from "@/assets/jsons/journey-map.jpg.asset.json";
-import journeyPlaneAsset from "@/assets/jsons/journey-plane.png.asset.json";
+import journeyMapAsset from "@/assets/jsons/journey-map.png.asset.json";
 
 const CV_LABEL: Record<"pt" | "en" | "it" | "es", string> = {
   pt: "Baixar CV",
@@ -44,6 +43,9 @@ const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
   { code: "es", label: "Español", flag: "🇪🇸" },
 ];
 
+type JourneyItem = { period: string; location: string; title: string; body: string; accent: "green" | "red" | "blue" | "violet" };
+type Strength = { title: string; body: string };
+
 const T: Record<Lang, {
   badge: string;
   subtitle: string;
@@ -51,8 +53,8 @@ const T: Record<Lang, {
   about: { tag: string; quote: string };
   aboutSite: { title: string; body: string };
   journeyTitle: { tag: string; heading: string };
-  journey: { year: string; role: string; note: string }[];
-  contact: { tag: string; heading1: string; headingAccent: string; heading2: string; body: string; cta: string };
+  journey: JourneyItem[];
+  strengths: Strength[];
   socials: string;
   footer: string;
 }> = {
@@ -61,16 +63,20 @@ const T: Record<Lang, {
     subtitle: "Criatividade, tecnologia e inteligência artificial. Explorando novas formas de transformar ideias em experiências digitais.",
     nav: { about: "Sobre", journey: "Jornada", contact: "Contato" },
     about: { tag: "01 · Quem sou eu", quote: "Sou movida pela curiosidade. A tecnologia me apresentou a resolução de problemas — mas entender pessoas e descobrir novas perspectivas é o que realmente me move." },
-    aboutSite: { title: "Sobre este site", body: "Cada imagem, conceito e experiência presentes neste site refletem minha curiosidade sobre o que acontece quando criatividade e tecnologia se encontram. O site e a arte principal foram criados por mim utilizando prompts originais e ferramentas de inteligência artificial generativa, como Gemini, ChatGPT e Lovable. Este espaço é um retrato da minha jornada através do design, da tecnologia, do storytelling e da inteligência artificial." },
+    aboutSite: { title: "Sobre este site", body: "Cada imagem, conceito e experiência presentes neste site refletem minha curiosidade sobre o que acontece quando criatividade e tecnologia se encontram. O site e a arte principal foram criados por mim utilizando prompts originais e ferramentas de inteligência artificial generativa, como Gemini, ChatGPT e Lovable." },
     journeyTitle: { tag: "02 · Jornada", heading: "Um caminho entre culturas." },
     journey: [
-      { year: "2009-2018", role: "Suporte ao Cliente · Suporte QA", note: "Brasil" },
-      { year: "2019–2022", role: "Restauração e produção", note: "Itália" },
-      { year: "2023", role: "Analista de QA", note: "Itália" },
-      { year: "2024", role: "QA / Desenvolvedora Front-end", note: "Itália" },
-      { year: "Hoje", role: "EstudandoIA · Prompt Engineering · Automação", note: "Brasil" },
+      { period: "Brasil (2009–2017)", location: "🇧🇷 Brasil", title: "Atendimento ao Cliente e Qualidade", body: "Construí uma base sólida em atendimento ao cliente, resolução de problemas e processos de qualidade. Trabalhei em contato direto com clientes e equipes técnicas, aprendendo a transformar necessidades em soluções práticas.", accent: "green" },
+      { period: "Itália (2019–2022)", location: "🇮🇹 Itália", title: "Experiência Internacional", body: "Atuei em restaurantes e ambientes de produção enquanto me adaptava a um novo país e cultura. Desenvolvi resiliência, flexibilidade e habilidades de comunicação em ambientes multiculturais e dinâmicos.", accent: "red" },
+      { period: "Itália (2023–2024)", location: "🇮🇹 Itália", title: "Suporte de Aplicações, QA e Desenvolvimento Front-end", body: "Retornei à área de tecnologia, contribuindo para a qualidade de software, resolução de problemas e melhorias na experiência do usuário em empresas internacionais, fortalecendo habilidades técnicas e analíticas.", accent: "blue" },
+      { period: "Hoje", location: "🌍", title: "Design, Tecnologia e IA", body: "Explorando a interseção entre criatividade, tecnologia e inteligência artificial por meio de projetos pessoais, design e aprendizado contínuo.", accent: "violet" },
     ],
-    contact: { tag: "03 · Vamos conversar", heading1: "Vamos construir algo", headingAccent: "curioso", heading2: "juntos.", body: "Interessada em oportunidades que combinem tecnologia, criatividade, comunicação, aprendizado e resolução de problemas.", cta: "Entre em contato" },
+    strengths: [
+      { title: "Boa Comunicação", body: "Comunico com clareza, escuto ativamente e construo relações positivas." },
+      { title: "Criativa e Curiosa", body: "Gosto de aprender, criar e dar vida a novas ideias." },
+      { title: "Adaptável e Resiliente", body: "Me adapto rapidamente a novos ambientes e mantenho o foco em soluções." },
+      { title: "Aberta a Oportunidades", body: "Animada para contribuir, crescer e gerar impacto positivo onde estiver." },
+    ],
     socials: "Me encontre",
     footer: "© 2026 Jessica Galhardi",
   },
@@ -79,16 +85,20 @@ const T: Record<Lang, {
     subtitle: "Creativity, technology and artificial intelligence. Exploring new ways to transform ideas into digital experiences.",
     nav: { about: "About", journey: "Journey", contact: "Contact" },
     about: { tag: "01 · Who I am", quote: "I am driven by curiosity. Technology introduced me to problem solving — but understanding people and discovering new perspectives is what truly moves me." },
-    aboutSite: { title: "About this website", body: "Every image, concept and experience on this website reflects my curiosity about what happens when creativity meets technology. The webpage and hero artwork were created by me using original prompts and generative AI like Gemini, ChatGpt and Loveable. This space is a snapshot of my journey through design, technology, storytelling and artificial intelligence." },
+    aboutSite: { title: "About this website", body: "Every image, concept and experience on this website reflects my curiosity about what happens when creativity meets technology. The webpage and hero artwork were created by me using original prompts and generative AI like Gemini, ChatGPT and Lovable." },
     journeyTitle: { tag: "02 · Journey", heading: "A path across cultures." },
     journey: [
-      { year: "2009-2018", role: "Customer Support · QA Support", note: "Brazil" },
-      { year: "2019–2022", role: "Food industry and production", note: "Italy" },
-      { year: "2023", role: "QA Analyst", note: "Italy" },
-      { year: "2024", role: "QA Analyst / Front-end Developer", note: "Italy" },
-      { year: "Today", role: "Studying AI · Prompt Engineering · Automation", note: "Brazil" },
+      { period: "Brazil (2009–2017)", location: "🇧🇷 Brazil", title: "Customer Support & Quality Assurance", body: "Built a strong foundation in customer service, problem solving and quality processes. Worked closely with customers and technical teams, learning how to translate needs into practical solutions.", accent: "green" },
+      { period: "Italy (2019–2022)", location: "🇮🇹 Italy", title: "International Experience", body: "Worked in restaurants and production environments while adapting to a new country and culture. Developed resilience, flexibility and communication skills in fast-paced multicultural workplaces.", accent: "red" },
+      { period: "Italy (2023–2024)", location: "🇮🇹 Italy", title: "Application Support, QA & Front-end Development", body: "Returned to the technology field, contributing to software quality, troubleshooting and user experience improvements for international companies while strengthening technical and analytical skills.", accent: "blue" },
+      { period: "Today", location: "🌍", title: "Design, Technology & AI", body: "Exploring the intersection of creativity, technology and artificial intelligence through personal projects, design and continuous learning.", accent: "violet" },
     ],
-    contact: { tag: "03 · Let's talk", heading1: "Let's build something", headingAccent: "curious", heading2: "together.", body: "Interested in roles combining technology, creativity, communication, learning and problem solving.", cta: "Get in touch" },
+    strengths: [
+      { title: "Strong Communicator", body: "I communicate clearly, listen actively and build positive relationships." },
+      { title: "Creative & Curious", body: "I enjoy learning, creating and bringing ideas to life." },
+      { title: "Adaptable & Resilient", body: "I thrive in new environments, adapt quickly and stay solution-oriented under pressure." },
+      { title: "Open to Opportunities", body: "I'm excited to contribute, grow and make a positive impact wherever I can." },
+    ],
     socials: "Find me",
     footer: "© 2026 Jessica Galhardi",
   },
@@ -97,16 +107,20 @@ const T: Record<Lang, {
     subtitle: "Tecnologia, curiosità e connessione umana. Professionista italo-brasiliana all'intersezione tra QA, front-end e IA.",
     nav: { about: "Chi sono", journey: "Percorso", contact: "Contatti" },
     about: { tag: "01 · Chi sono", quote: "Sono mossa dalla curiosità. La tecnologia mi ha introdotto al problem solving — ma capire le persone e scoprire nuove prospettive è ciò che davvero mi muove." },
-    aboutSite: { title: "Su questo sito", body: "Ogni immagine, concetto ed esperienza presenti su questo sito riflettono la mia curiosità per ciò che accade quando creatività e tecnologia si incontrano. Il sito e l'immagine principale sono stati creati da me utilizzando prompt originali e strumenti di intelligenza artificiale generativa come Gemini, ChatGPT e Lovable. Questo spazio rappresenta una fotografia del mio percorso attraverso il design, la tecnologia, lo storytelling e l'intelligenza artificiale." },
+    aboutSite: { title: "Su questo sito", body: "Ogni immagine, concetto ed esperienza presenti su questo sito riflettono la mia curiosità per ciò che accade quando creatività e tecnologia si incontrano. Il sito e l'immagine principale sono stati creati da me utilizzando prompt originali e strumenti di IA generativa come Gemini, ChatGPT e Lovable." },
     journeyTitle: { tag: "02 · Percorso", heading: "Un cammino tra culture." },
     journey: [
-      { year: "2009-2018", role: "Assistenza Clienti · QA Support", note: "Brazil" },
-      { year: "2019–2022", role: "Ristorazione e produzione", note: "Italia" },
-      { year: "2023", role: "QA Analyst", note: "Italia" },
-      { year: "2024", role: "QA / Sviluppatrice Front-end", note: "Italia" },
-      { year: "Oggi", role: "IA · Prompt Engineering · Automazione", note: "Brasile" },
+      { period: "Brasile (2009–2017)", location: "🇧🇷 Brasile", title: "Assistenza Clienti e Qualità", body: "Ho costruito solide basi nell'assistenza clienti, nella risoluzione dei problemi e nei processi di qualità. Ho collaborato a stretto contatto con clienti e team tecnici, imparando a trasformare le esigenze in soluzioni pratiche.", accent: "green" },
+      { period: "Italia (2019–2022)", location: "🇮🇹 Italia", title: "Esperienza Internazionale", body: "Ho lavorato nella ristorazione e in ambienti produttivi mentre mi adattavo a un nuovo Paese e a una nuova cultura. Ho sviluppato resilienza, flessibilità e capacità comunicative in contesti multiculturali e dinamici.", accent: "red" },
+      { period: "Italia (2023–2024)", location: "🇮🇹 Italia", title: "Supporto Applicativo, QA e Sviluppo Front-end", body: "Sono tornata al settore tecnologico contribuendo alla qualità del software, alla risoluzione dei problemi e al miglioramento dell'esperienza utente in aziende internazionali, rafforzando competenze tecniche e analitiche.", accent: "blue" },
+      { period: "Oggi", location: "🌍", title: "Design, Tecnologia e IA", body: "Esploro l'incontro tra creatività, tecnologia e intelligenza artificiale attraverso progetti personali, design e apprendimento continuo.", accent: "violet" },
     ],
-    contact: { tag: "03 · Parliamone", heading1: "Costruiamo qualcosa di", headingAccent: "curioso", heading2: "insieme.", body: "Interessata a ruoli che uniscano tecnologia, creatività, comunicazione, apprendimento e problem solving.", cta: "Contattami" },
+    strengths: [
+      { title: "Comunicazione Efficace", body: "Comunico con chiarezza, ascolto attivamente e costruisco relazioni positive." },
+      { title: "Creativa e Curiosa", body: "Amo imparare, creare e dare vita a nuove idee." },
+      { title: "Adattabile e Resiliente", body: "Mi adatto rapidamente a nuovi ambienti e resto orientata alle soluzioni." },
+      { title: "Aperta alle Opportunità", body: "Entusiasta di contribuire, crescere e generare impatto positivo ovunque." },
+    ],
     socials: "Trovami",
     footer: "© 2026 Jessica Galhardi",
   },
@@ -115,16 +129,20 @@ const T: Record<Lang, {
     subtitle: "Tecnología, curiosidad y conexión humana. Profesional ítalo-brasileña en la intersección de QA, front-end e IA.",
     nav: { about: "Sobre mí", journey: "Trayectoria", contact: "Contacto" },
     about: { tag: "01 · Quién soy", quote: "Me mueve la curiosidad. La tecnología me presentó la resolución de problemas — pero entender a las personas y descubrir nuevas perspectivas es lo que realmente me impulsa." },
-    aboutSite: { title: "Sobre este sitio", body: "Cada imagen, concepto y experiencia presentes en este sitio web reflejan mi curiosidad por lo que sucede cuando la creatividad y la tecnología se encuentran. El sitio web y la imagen principal fueron creados por mí utilizando prompts originales y herramientas de inteligencia artificial generativa como Gemini, ChatGPT y Lovable. Este espacio es una muestra de mi recorrido a través del diseño, la tecnología, el storytelling y la inteligencia artificial." },
+    aboutSite: { title: "Sobre este sitio", body: "Cada imagen, concepto y experiencia presentes en este sitio web reflejan mi curiosidad por lo que sucede cuando la creatividad y la tecnología se encuentran. El sitio y la imagen principal fueron creados por mí utilizando prompts originales y herramientas de IA generativa como Gemini, ChatGPT y Lovable." },
     journeyTitle: { tag: "02 · Trayectoria", heading: "Un camino entre culturas." },
     journey: [
-      { year: "2009-2018", role: "Atención al Cliente · Soporte QA", note: "Brasil" },
-      { year: "2019–2022", role: "Hostelería y producción", note: "Italia" },
-      { year: "2023", role: "Analista QA", note: "Previnet" },
-      { year: "2024", role: "QA / Desarrolladora Front-end", note: "Italia" },
-      { year: "Hoy", role: "Estudiando IA · Prompt Engineering · Automatización", note: "Brasil" },
+      { period: "Brasil (2009–2017)", location: "🇧🇷 Brasil", title: "Atención al Cliente y Calidad", body: "Construí una base sólida en atención al cliente, resolución de problemas y procesos de calidad. Trabajé estrechamente con clientes y equipos técnicos, aprendiendo a transformar necesidades en soluciones prácticas.", accent: "green" },
+      { period: "Italia (2019–2022)", location: "🇮🇹 Italia", title: "Experiencia Internacional", body: "Trabajé en restaurantes y entornos de producción mientras me adaptaba a un nuevo país y cultura. Desarrollé resiliencia, flexibilidad y habilidades de comunicación en ambientes multiculturales y dinámicos.", accent: "red" },
+      { period: "Italia (2023–2024)", location: "🇮🇹 Italia", title: "Soporte de Aplicaciones, QA y Desarrollo Front-end", body: "Regresé al sector tecnológico, contribuyendo a la calidad del software, la resolución de problemas y las mejoras en la experiencia del usuario para empresas internacionales, fortaleciendo mis habilidades técnicas y analíticas.", accent: "blue" },
+      { period: "Hoy", location: "🌍", title: "Diseño, Tecnología e IA", body: "Explorando la intersección entre creatividad, tecnología e inteligencia artificial a través de proyectos personales, diseño y aprendizaje continuo.", accent: "violet" },
     ],
-    contact: { tag: "03 · Hablemos", heading1: "Construyamos algo", headingAccent: "curioso", heading2: "juntos.", body: "Interesada en roles que combinen tecnología, creatividad, comunicación, aprendizaje y resolución de problemas.", cta: "Contáctame" },
+    strengths: [
+      { title: "Gran Comunicadora", body: "Comunico con claridad, escucho activamente y construyo relaciones positivas." },
+      { title: "Creativa y Curiosa", body: "Disfruto aprender, crear y dar vida a nuevas ideas." },
+      { title: "Adaptable y Resiliente", body: "Me adapto rápido a nuevos entornos y mantengo el foco en soluciones." },
+      { title: "Abierta a Nuevas Oportunidades", body: "Con ganas de contribuir, crecer y generar impacto positivo donde esté." },
+    ],
     socials: "Encuéntrame",
     footer: "© 2026 Jessica Galhardi",
   },
@@ -142,6 +160,15 @@ const socials = [
   { name: "Instagram", href: "https://www.instagram.com/jess_galhardi/", Icon: Instagram, accent: "from-[#f58529] via-[#dd2a7b] to-[#8134af]" },
   { name: "GitHub", href: "https://github.com/JessicaGalhardi", Icon: Github, accent: "from-[#24292e] to-[#57606a]" },
 ];
+
+const ACCENTS: Record<JourneyItem["accent"], { dot: string; text: string; ring: string }> = {
+  green: { dot: "bg-emerald-500", text: "text-emerald-700", ring: "ring-emerald-200" },
+  red: { dot: "bg-red-500", text: "text-red-700", ring: "ring-red-200" },
+  blue: { dot: "bg-sky-500", text: "text-sky-700", ring: "ring-sky-200" },
+  violet: { dot: "bg-violet-500", text: "text-violet-700", ring: "ring-violet-200" },
+};
+
+const STRENGTH_ICONS = [MessageCircle, Lightbulb, Users, Star];
 
 function LanguageSwitcher({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   const current = LANGUAGES.find((l) => l.code === lang)!;
@@ -226,95 +253,6 @@ function PhotoCarousel({ lang }: { lang: Lang }) {
   );
 }
 
-function MapJourney({ items }: { items: { year: string; role: string; note: string }[] }) {
-  const W = 1000;
-  const H = 466;
-  // Markers placed over the Ghibli map (Brazil on left, Italy on right)
-  const positions: { x: number; y: number; side: "br" | "it" }[] = [
-    { x: 200, y: 320, side: "br" }, // 2009-2018 Brazil
-    { x: 720, y: 180, side: "it" }, // 2019-2022 Italy
-    { x: 780, y: 240, side: "it" }, // 2023 Italy
-    { x: 830, y: 200, side: "it" }, // 2024 Italy
-    { x: 260, y: 380, side: "br" }, // Today Brazil
-  ];
-
-  const peaks = items.map((it, i) => ({ ...it, ...positions[i % positions.length] }));
-
-  // Flight path: smooth curve visiting every marker in order
-  const pathD = peaks
-    .map((p, i) => {
-      if (i === 0) return `M ${p.x} ${p.y}`;
-      const prev = peaks[i - 1];
-      const mx = (prev.x + p.x) / 2;
-      const cy = Math.min(prev.y, p.y) - 80; // arc upward between points
-      return `Q ${mx} ${cy} ${p.x} ${p.y}`;
-    })
-    .join(" ");
-
-  return (
-    <div className="overflow-x-auto pb-4">
-      <div className="relative min-w-[720px]">
-        <svg viewBox={`0 0 ${W} ${H + 90}`} className="w-full" role="img" aria-label="Journey map Brazil to Italy">
-          {/* Ghibli style map background */}
-          <image href={journeyMapAsset.url} x="0" y="0" width={W} height={H} preserveAspectRatio="xMidYMid slice" />
-
-          {/* Dashed flight trail */}
-          <path
-            d={pathD}
-            fill="none"
-            stroke="var(--primary)"
-            strokeWidth="2.5"
-            strokeDasharray="6 6"
-            strokeLinecap="round"
-            opacity="0.7"
-            id="flightPath"
-          />
-
-          {/* Markers */}
-          {peaks.map((p, i) => (
-            <g key={i}>
-              <circle cx={p.x} cy={p.y} r="10" fill="var(--background)" stroke="var(--primary)" strokeWidth="3" />
-              <circle cx={p.x} cy={p.y} r="4" fill="var(--primary)" />
-              <text
-                x={p.x}
-                y={p.y - 22}
-                textAnchor="middle"
-                fontSize="15"
-                fontWeight="700"
-                fill="var(--foreground)"
-                style={{ paintOrder: "stroke", stroke: "var(--background)", strokeWidth: 4 }}
-              >
-                {p.year}
-              </text>
-              <text x={p.x} y={H + 30} textAnchor="middle" fontSize="15" fontFamily="Fraunces, serif" fill="var(--foreground)">
-                {p.role.length > 28 ? p.role.slice(0, 26) + "…" : p.role}
-              </text>
-              <text x={p.x} y={H + 52} textAnchor="middle" fontSize="12" fill="var(--muted-foreground)">
-                {p.note}
-              </text>
-            </g>
-          ))}
-
-          {/* Ghibli plane with the girl, flying along the path */}
-          <g>
-            <image
-              href={journeyPlaneAsset.url}
-              x="-45"
-              y="-35"
-              width="90"
-              height="70"
-              preserveAspectRatio="xMidYMid meet"
-            />
-            <animateMotion dur="18s" repeatCount="indefinite" rotate="auto">
-              <mpath href="#flightPath" />
-            </animateMotion>
-          </g>
-        </svg>
-      </div>
-    </div>
-  );
-}
-
 function Index() {
   const [lang, setLang] = useState<Lang>("en");
   const t = T[lang];
@@ -350,7 +288,6 @@ function Index() {
               {t.subtitle}
             </p>
 
-            {/* Social icons */}
             <div className="mt-8">
               <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">{t.socials}</p>
               <div className="flex gap-3">
@@ -364,9 +301,6 @@ function Index() {
                     className={`group relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br ${accent} text-white shadow-lg transition-transform hover:-translate-y-1 hover:rotate-[-4deg]`}
                   >
                     <Icon className="h-5 w-5" />
-                    <span className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[10px] font-medium text-background opacity-0 transition-opacity group-hover:opacity-100">
-                      {name}
-                    </span>
                   </a>
                 ))}
               </div>
@@ -415,7 +349,55 @@ function Index() {
             </p>
             <h2 className="mt-4 font-display text-4xl">{t.journeyTitle.heading}</h2>
           </div>
-          <MapJourney items={t.journey} />
+
+          {/* Illustrated map */}
+          <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+            <img
+              src={journeyMapAsset.url}
+              alt={t.journeyTitle.heading}
+              className="block h-auto w-full"
+              loading="lazy"
+            />
+          </div>
+
+          {/* Journey cards */}
+          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+            {t.journey.map((j, i) => {
+              const a = ACCENTS[j.accent];
+              return (
+                <article
+                  key={i}
+                  className={`relative rounded-2xl border border-border bg-card p-6 shadow-sm ring-1 ${a.ring} transition-transform hover:-translate-y-1`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`inline-block h-3 w-3 rounded-full ${a.dot}`} />
+                    <span className={`text-sm font-semibold ${a.text}`}>{j.period}</span>
+                    <span className="ml-auto text-xs text-muted-foreground">{j.location}</span>
+                  </div>
+                  <h3 className="mt-3 font-display text-xl leading-snug">{j.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{j.body}</p>
+                </article>
+              );
+            })}
+          </div>
+
+          {/* Strengths */}
+          <div className="mt-10 grid grid-cols-1 gap-4 rounded-2xl border border-border bg-secondary/40 p-6 sm:grid-cols-2 lg:grid-cols-4">
+            {t.strengths.map((s, i) => {
+              const Icon = STRENGTH_ICONS[i] ?? Star;
+              return (
+                <div key={i} className="flex gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background text-primary ring-1 ring-border">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{s.title}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.body}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           <div className="mt-12 flex justify-center">
             <a
@@ -430,8 +412,6 @@ function Index() {
         </section>
 
         <div className="h-px w-full bg-border" />
-
-        
       </main>
 
       <footer className="mx-auto flex max-w-6xl justify-between border-t border-border px-6 py-10 text-sm text-muted-foreground">
