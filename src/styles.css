@@ -142,3 +142,12 @@
     color: var(--color-foreground);
   }
 }
+
+.hero-3d {
+  perspective: 1200px;
+}
+
+.hero-3d-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
