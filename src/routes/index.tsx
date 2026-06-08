@@ -12,7 +12,10 @@ import cineAsset from "@/assets/jsons/cine.png.asset.json";
 import gymAsset from "@/assets/jsons/gym.png.asset.json";
 import pianoAsset from "@/assets/jsons/piano.png.asset.json";
 import planeAsset from "@/assets/jsons/plane.png.asset.json";
-import cvAsset from "@/assets/cv.pdf.asset.json";
+import cvAsset from "@/assets/jsons/cv.pdf.asset.json";
+import cvAssetPt from "@/assets/jsons/cv.pdf.asset.pt.json";
+import cvAssetIt from "@/assets/jsons/cv.pdf.asset.IT.json";
+import cvAssetEs from "@/assets/jsons/cv.pdf.asset.ES.json";
 import journeyMapAsset from "@/assets/jsons/journey-map-v2.png.asset.json";
 import journeyPlaneAsset from "@/assets/jsons/journey-plane.png.asset.json";
 
@@ -22,6 +25,14 @@ const CV_LABEL: Record<"pt" | "en" | "it" | "es", string> = {
   it: "Scarica CV",
   es: "Descargar CV",
 };
+
+const CV_FILES : Record<"pt" | "en" | "it" | "es", string> = {
+  pt: cvAssetPt.url,
+  en: cvAsset.url,
+  it: cvAssetIt.url,
+  es: cvAssetEs.url,
+};
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -314,7 +325,7 @@ function Index() {
             </div>
 
             <a
-              href={cvAsset.url}
+              href={CV_FILES[lang]}
               download="Jessica_Galhardi_CV.pdf"
               className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5"
             >
@@ -452,7 +463,7 @@ function Index() {
 
           <div className="mt-12 flex justify-center">
             <a
-              href={cvAsset.url}
+            href={CV_FILES[lang]}
               download="Jessica_Galhardi_CV.pdf"
               className="inline-flex items-center gap-2 rounded-2xl border border-primary bg-background px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
             >
