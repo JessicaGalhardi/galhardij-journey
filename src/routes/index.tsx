@@ -101,15 +101,11 @@ export function Gmail(props: React.SVGProps<SVGSVGElement>) {
         <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            fill="currentColor" 
             {...props}
         >
-            <rect x="3" y="5" width="18" height="14" rx="2" />
-            <path d="m3 7 9 6 9-6" />
+            {/* Um único path simplificado e sólido do ícone do Gmail (estilo envelope preenchido) */}
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
         </svg>
     );
 }
@@ -255,7 +251,7 @@ function LanguageSwitcher({ lang, setLang }: { lang: Lang; setLang: (l: Lang) =>
             <DropdownMenuTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:bg-white/25"
+                    className="cursor-pointer inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:bg-white/25"
                 >
                     <Languages className="h-4 w-4" />
                     <span>{current.flag} {current.label}</span>
@@ -289,17 +285,17 @@ function PhotoCarousel({ lang }: { lang: Lang }) {
     const prev = () => setIdx((i) => (i - 1 + total) % total);
     const next = () => setIdx((i) => (i + 1) % total);
     return (
-        <div className="relative">
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-secondary shadow-xl md:aspect-[5/4]">
+        <div className="w-full max-w-full min-w-0 px-2 mx-auto overflow-x-hidden">
+            <div className="relative w-full aspect-square sm:aspect-[4/5] md:aspect-[5/4] overflow-hidden rounded-2xl bg-secondary shadow-xl">
                 {photos.map((p, i) => (
                     <img
                         key={p.src}
                         src={p.src}
                         alt={p.caption[lang]}
-                        className={`absolute inset-0 h-full w-full object-cover transition-all duration-[6000] ease-out ${i === idx ? "opacity-100 scale-105" : "opacity-0 scale-100"}`}
+                        className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-[6000] ease-out ${i === idx ? "opacity-100 scale-105" : "opacity-0 scale-100"}`}
                     />
                 ))}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-5">
+                <div className="absolute w-full  object-cover object-center inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-5">
                     <p className="font-display text-xl italic text-white">{photos[idx].caption[lang]}</p>
                 </div>
                 <button
@@ -357,62 +353,81 @@ function Index() {
     return (
         <div className="min-h-screen bg-background text-foreground">
             <section
-                className="relative w-full h-[48vh] sm:h-[65vh] md:h-auto overflow-hidden">
+                className="relative w-full min-h-[60vh] md:min-h-0 md:h-auto overflow-hidden">
 
                 <div
-                    className="homepage-bg layer absolute inset-0 w-full h-full bg-cover bg-top bg-no-repeat z-0"
+                    className="homepage-bg layer absolute inset-0 w-full h-full bg-contain bg-top bg-no-repeat z-0"
                     data-depth="1.2"
                     style={{ backgroundImage: `url(${heroAsset.url})` }}
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/5 to-background" />
-                <div className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-8">
+
+                {/* 1. CORRIGIDO: sm:flex-row (com W no final). No celular empilha (flex-col), no PC fica lado a lado */}
+                <div className="relative z-10 mx-auto flex flex-col sm:flex-row max-w-6xl items-center justify-between gap-4 px-6 py-8">
+
+                    {/* LOGO: Fica na esquerda no PC, e no topo centralizado no celular */}
                     <span className="font-display text-lg italic text-foreground drop-shadow-sm">jg.</span>
-                    <div className="flex items-center gap-6">
-                        <nav className="hidden gap-6 text-xl font-medium text-foreground md:flex">
-                            <a href="#about" className="transition-colors hover:text-primary">{t.nav.about}</a>
-                            <a href="#journey" className="transition-colors hover:text-primary">{t.nav.journey}</a>
-                        </nav>
-                        <LanguageSwitcher lang={lang} setLang={setLang} />
 
-                    </div>
+                    {/* CONTAINER DA DIREITA: Responsável por alinhar os menus e o player */}
+                    {/* No celular ele empilha tudo no centro (flex-col items-center) */}
+                    {/* No PC, ele vira uma linha e joga os elementos para as pontas (md:flex-row) */}
+                    <div className="flex flex-col items-center sm:items-end md:flex-row md:items-center gap-4">
 
-                    <audio
-                        ref={audioRef}
-                        src={currentMusic.src}
-                        loop
-                    />
+                        {/* Bloco do Menu + Botão de Tradução */}
+                        <div className="flex items-center gap-6">
+                            <nav className="hidden gap-6 text-xl font-medium text-foreground md:flex">
+                                <a href="#about" className="transition-colors hover:text-primary">{t.nav.about}</a>
+                                <a href="#journey" className="transition-colors hover:text-primary">{t.nav.journey}</a>
+                            </nav>
 
-                    <div
-                        onClick={toggleMusic}
-                        className="cursor-pointer rounded-2xl bg-background/40 px-4 py-3 backdrop-blur-md">
-                        <p className="text-sm font-medium flex items-center gap-2">
-                            {isPlaying ? "⏸" : "|▶"}
-                            {currentMusic.label}
-                        </p>
+                            {/* Botão de tradução */}
+                            <LanguageSwitcher lang={lang} setLang={setLang} />
+                        </div>
 
-                        <p className="mt-1 text-xs text-muted-foreground">
-                            <a
-                                href={currentMusic.artistUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:underline"
-                            >
-                                {currentMusic.artist}
-                            </a>
-                            {" · "}
-                            <a
-                                href="https://pixabay.com/music/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:underline"
-                            >
-                                Pixabay
-                            </a>
-                        </p>
-                    </div>
+                        {/* Tag de áudio escondida */}
+                        <audio
+                            ref={audioRef}
+                            src={currentMusic.src}
+                            loop
+                        />
+
+                        {/* PLAYER DE MÚSICA: No celular ele cai automaticamente para baixo do LanguageSwitcher */}
+                        <div
+                            onClick={toggleMusic}
+                            className="cursor-pointer rounded-xl md:rounded-2xl bg-background/40 px-3 py-2 md:px-4 md:py-3 backdrop-blur-md max-w-[220px] sm:max-w-sm overflow-hidden"
+                        >
+                            {/* CORRIGIDO: Removido o gap duplicado */}
+                            <p className="text-[11px] md:text-sm font-medium flex items-center gap-1.5 truncate">
+                                <span className="shrink-0">{isPlaying ? "⏸" : "|▶"}</span>
+                                <span className="truncate">{currentMusic.label}</span>
+                            </p>
+
+                            <p className="mt-0.5 md:mt-1 text-[10px] md:text-xs text-muted-foreground truncate">
+                                <a
+                                    href={currentMusic.artistUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="hover:underline"
+                                >
+                                    {currentMusic.artist}
+                                </a>
+                                {" · "}
+                                <a
+                                    href="https://pixabay.com/music/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="hover:underline"
+                                >
+                                    Pixabay
+                                </a>
+                            </p>
+                        </div>
+
+                    </div> {/* Fim do container da direita */}
                 </div>
-
 
                 <div className="relative z-10 mx-auto max-w-6xl px-6 pt-16 pb-32 md:pt-24 md:pb-48">
                     <div className="max-w-xl rounded-3xl bg-background/35 p-8 backdrop-blur-sm md:p-10">
@@ -439,16 +454,16 @@ function Index() {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         aria-label={name}
-                                        className={`group relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br ${accent} text-white shadow-lg transition-transform hover:-translate-y-1 hover:rotate-[-4deg]`}
+                                        className={`group relative  flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br ${accent} text-white shadow-lg transition-transform hover:-translate-y-1 hover:rotate-[-4deg]`}
                                     >
                                         <Icon className="h-5 w-5" />
                                     </a>
 
                                 ))}
-                               
+
 
                             </div>
-                            
+
                         </div>
 
                         <a
@@ -463,23 +478,23 @@ function Index() {
                 </div>
             </section>
 
-            <main className="mx-auto max-w-6xl px-6">
-                <section className="py-16">
+            <main className="mx-auto max-w-6xl px-4 sm:px-6 min-w-0 overflow-x-hidden">
+                <section className="py-12 md:py-16">
                     <div className="rounded-3xl border border-border bg-card/50 p-8">
                         <h2 className="font-display text-3xl mb-4">{t.aboutSite.title}</h2>
                         <p className="text-muted-foreground leading-relaxed">{t.aboutSite.body}</p>
                     </div>
                 </section>
 
-                <section id="about" className="grid grid-cols-12 gap-8 py-24">
+                <section id="about" className="grid grid-cols-12 gap-4 md:gap-8 py-16 md:py-24 items-center">
                     <div className="col-span-12 md:col-span-5">
                         <PhotoCarousel lang={lang} />
                     </div>
-                    <div className="col-span-12 md:col-span-7">
-                        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                    <div className="col-span-12 md:col-span-7 min-w-0">
+                        <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] text-muted-foreground">
                             {t.about.tag}
                         </p>
-                        <p className="mt-4 font-display text-3xl leading-snug md:text-4xl">
+                        <p className="mt-3 font-display text-xl sm:text-2xl md:text-4xl leading-snug">
                             {t.about.quote}
                         </p>
                     </div>
