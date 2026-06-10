@@ -7,24 +7,27 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import heroAsset from "@/assets/jsons/hero-illustration.png.asset.json";
-import cineAsset from "@/assets/jsons/cine.png.asset.json";
-import gymAsset from "@/assets/jsons/gym.png.asset.json";
-import pianoAsset from "@/assets/jsons/piano.png.asset.json";
-import planeAsset from "@/assets/jsons/plane.png.asset.json";
-import cvAsset from "@/assets/jsons/cv.pdf.asset.json";
-import cvAssetPt from "@/assets/jsons/cv.pdf.asset.pt.json";
-import cvAssetIt from "@/assets/jsons/cv.pdf.asset.IT.json";
-import cvAssetEs from "@/assets/jsons/cv.pdf.asset.ES.json";
-import journeyMapAsset from "@/assets/jsons/journey-map-v2.png.asset.json";
-import journeyPlaneAsset from "@/assets/jsons/journey-plane.png.asset.json";
 
-import { useParallax } from "@/hooks/use-parallax";
+import heroAsset from "@/assets/images/hero-illustration.png";
+import cineAsset from "@/assets/images/cine.png";
+import gymAsset from "@/assets/images/gym.png";
+import pianoAsset from "@/assets/images/piano.png";
+import planeAsset from "@/assets/images/plane.png";
+
+import journeyMapAsset from "@/assets/images/journey-map-v2.png";
+import journeyPlaneAsset from "@/assets/images/journey-plane.png";
+
+/*import cvAsset from "@/assets/pdfs/JESSICA_GALHARDI_EN.pdf";
+import cvAssetPt from "@/assets/pdfs/JESSICA_GALHARDI_PT.pdf";
+import cvAssetIt from "@/assets/pdfs/JESSICA_GALHARDI_IT.pdf";
+import cvAssetEs from "@/assets/pdfs/JESSICA_GALHARDI_ES.pdf";*/
 
 import enMusic from "@/assets/musics/en-soundtrack.mp3";
 import ptMusic from "@/assets/musics/pt-soundtrack.mp3";
 import itMusic from "@/assets/musics/it-soundtrack.mp3";
 import esMusic from "@/assets/musics/es-soundtrack.mp3";
+
+import { useParallax } from "@/hooks/use-parallax";
 
 const CV_LABEL: Record<"pt" | "en" | "it" | "es", string> = {
     pt: "Baixar CV",
@@ -34,10 +37,10 @@ const CV_LABEL: Record<"pt" | "en" | "it" | "es", string> = {
 };
 
 const CV_FILES: Record<"pt" | "en" | "it" | "es", string> = {
-    pt: cvAssetPt.url,
-    en: cvAsset.url,
-    it: cvAssetIt.url,
-    es: cvAssetEs.url,
+  pt: "/pdfs/JESSICA_GALHARDI_PT.pdf",
+  en: "/pdfs/JESSICA_GALHARDI_EN.pdf",
+  it: "/pdfs/JESSICA_GALHARDI_IT.pdf",
+  es: "/pdfs/JESSICA_GALHARDI_ES.pdf",
 };
 
 
@@ -216,10 +219,10 @@ const T: Record<Lang, {
 };
 
 const photos = [
-    { src: cineAsset.url, caption: { pt: "Cinema", en: "Cinema", it: "Cinema", es: "Cine" } },
-    { src: gymAsset.url, caption: { pt: "Treino", en: "Gym", it: "Palestra", es: "Gimnasio" } },
-    { src: pianoAsset.url, caption: { pt: "Piano", en: "Piano", it: "Pianoforte", es: "Piano" } },
-    { src: planeAsset.url, caption: { pt: "Viagens", en: "Travel", it: "Viaggi", es: "Viajes" } },
+    { src: cineAsset, caption: { pt: "Cinema", en: "Cinema", it: "Cinema", es: "Cine" } },
+    { src: gymAsset, caption: { pt: "Treino", en: "Gym", it: "Palestra", es: "Gimnasio" } },
+    { src: pianoAsset, caption: { pt: "Piano", en: "Piano", it: "Pianoforte", es: "Piano" } },
+    { src: planeAsset, caption: { pt: "Viagens", en: "Travel", it: "Viaggi", es: "Viajes" } },
 ];
 
 const socials = [
@@ -358,7 +361,8 @@ function Index() {
                 <div
                     className="homepage-bg layer absolute inset-0 w-full h-full bg-contain bg-top bg-no-repeat z-0"
                     data-depth="1.2"
-                    style={{ backgroundImage: `url(${heroAsset.url})` }}
+                    style={{ backgroundImage: `url(${heroAsset})`
+                 }}
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/5 to-background" />
@@ -514,7 +518,7 @@ function Index() {
                     {/* Animated illustrated map with floating period labels */}
                     <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
                         <img
-                            src={journeyMapAsset.url}
+                            src={journeyMapAsset}
                             alt={t.journeyTitle.heading}
                             className="block h-auto w-full"
                             loading="lazy"
@@ -543,7 +547,7 @@ function Index() {
                             />
                             <g>
                                 <image
-                                    href={journeyPlaneAsset.url}
+                                    href={journeyPlaneAsset}
                                     width="120"
                                     height="120"
                                     x="-60"
